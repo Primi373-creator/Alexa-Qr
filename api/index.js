@@ -20,7 +20,7 @@ const {
 } = require("@whiskeysockets/baileys");
 const pino = require("pino");
 const PORT = process.env.PORT || 3030;
-
+app.use("/static", express.static(path.join(__dirname, "../public")));
 app.use("/", (req, res) => {
   async function XAsena() {
     try {
