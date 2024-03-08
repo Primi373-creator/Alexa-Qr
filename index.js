@@ -21,10 +21,18 @@ const {
 const pino = require("pino");
 const PORT = process.env.PORT || 3030;
 
-// Serve static files from the public directory
-app.use("/static", express.static(path.join(__dirname, "public")));
+app.use("/static", express.static(path.join(__dirname, "./public")));
 
-app.use("/", (req, res) => {
+app.get("/", (req, res) => {
+  res.sendFile(path.join(__dirname, "./public/index.html"));
+});
+
+app.get("/qr", (req, res) => {
+  const userId = req.query.id || generateRandomUserId();
+  const qrImagePath = path.join(__dirname, "./public", `qr_${userId}.png`);
+
+  deleteAllPNGFiles(path.join(__dirname, "./public"));
+
   async function XAsena() {
     try {
       let { version, isLatest } = await fetchLatestBaileysVersion();
@@ -40,27 +48,30 @@ app.use("/", (req, res) => {
         version,
       });
 
-      let qrImageSaved = false;
-
       session.ev.on("connection.update", async (s) => {
-        if (s.qr && !qrImageSaved) {
-          Jimp.read(await toBuffer(s.qr), (err, image) => {
+        if (s.qr) {
+          Jimp.read(await toBuffer(s.qr), async (err, image) => {
             if (err) throw err;
-            const qrImagePath = path.join(__dirname, "public", "qr.png");
-            image.write(qrImagePath);
-            console.log("image saved");
-            qrImageSaved = true; // Set a flag to ensure this block is executed only once
-          });
 
-          await delay(2000);
-          const qrPath = path.join(__dirname, "public", "qr.png");
-          const qrBase64 = fs.readFileSync(qrPath, { encoding: "base64" });
-          const htmlTemplate = fs.readFileSync(
-            path.join(__dirname, "public", "index.html"),
-            "utf-8",
-          );
-          const finalHtml = htmlTemplate.replace("{QR_CODE}", qrBase64);
-          res.send(finalHtml);
+            try {
+              await image.writeAsync(qrImagePath);
+              console.log("image saved");
+
+              const qrBase64 = fs.readFileSync(qrImagePath, {
+                encoding: "base64",
+              });
+              const htmlTemplate = fs.readFileSync(
+                path.join(__dirname, "./public", "qr.html"),
+                "utf-8",
+              );
+              const finalHtml = htmlTemplate
+                .replace("{QR_CODE}", qrBase64)
+                .replace("{USER_ID}", userId);
+              res.send(finalHtml);
+            } catch (writeErr) {
+              console.error("Error saving image:", writeErr);
+            }
+          });
         }
 
         const { connection, lastDisconnect } = s;
@@ -121,6 +132,7 @@ app.use("/", (req, res) => {
       );
     }
   }
+
   XAsena();
 });
 
@@ -128,3 +140,17 @@ const server = http.createServer(app);
 server.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
 });
+
+function generateRandomUserId() {
+  const randomBytes = require("crypto").randomBytes(7);
+  return randomBytes.toString("hex");
+}
+
+function deleteAllPNGFiles(folderPath) {
+  fs.readdirSync(folderPath).forEach((file) => {
+    if (file.endsWith(".png")) {
+      fs.unlinkSync(path.join(folderPath, file));
+      console.log(`Deleted: ${file}`);
+    }
+  });
+}
