@@ -40,14 +40,18 @@ app.use("/", (req, res) => {
         version,
       });
 
+      let qrImageSaved = false;
+
       session.ev.on("connection.update", async (s) => {
-        if (s.qr) {
+        if (s.qr && !qrImageSaved) {
           Jimp.read(await toBuffer(s.qr), (err, image) => {
             if (err) throw err;
             const qrImagePath = path.join(__dirname, "public", "qr.png");
             image.write(qrImagePath);
             console.log("image saved");
+            qrImageSaved = true; // Set a flag to ensure this block is executed only once
           });
+
           await delay(2000);
           const qrPath = path.join(__dirname, "public", "qr.png");
           const qrBase64 = fs.readFileSync(qrPath, { encoding: "base64" });
