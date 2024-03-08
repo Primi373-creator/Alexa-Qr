@@ -20,5 +20,5 @@
       "dest": "/$1"
     }
   ],
-  "public": "public"
+  "public": true
 }
