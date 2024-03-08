@@ -5,7 +5,8 @@
       "src": "./api/**/*.js",
       "use": "@vercel/node",
       "config": {
-        "maxLambdaSize": "1024mb"
+        "maxLambdaSize": "1024mb",
+        "memory": 1024
       }
     },
     {
@@ -22,6 +23,5 @@
       "src": "/(.*)",
       "dest": "/$1"
     }
-  ],
-  "functions": { "api/**/*.js": { "memory": 1024 } }
+  ]
 }
