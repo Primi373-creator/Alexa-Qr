@@ -1,5 +1,6 @@
 const express = require("express");
 const app = express();
+const path = require("path");
 const fs = require("fs-extra");
 const http = require("http");
 const { tmpdir } = require("os");
@@ -40,14 +41,17 @@ app.use("/", (req, res) => {
         if (s.qr) {
           Jimp.read(await toBuffer(s.qr), (err, image) => {
             if (err) throw err;
-            const qrImagePath = path.join(__dirname, "public", "qr.png");
+            const qrImagePath = path.join(__dirname, "../public", "qr.png");
             image.write(qrImagePath);
             console.log("image saved");
           });
           await delay(2000);
-          const qrPath = path.join(__dirname, "public", "qr.png");
+          const qrPath = path.join(__dirname, "../public", "qr.png");
           const qrBase64 = fs.readFileSync(qrPath, { encoding: "base64" });
-          const htmlTemplate = fs.readFileSync(path.join(__dirname, "public", "index.html"), "utf-8");
+          const htmlTemplate = fs.readFileSync(
+            path.join(__dirname, "../public/index.html"),
+            "utf-8",
+          );
           const finalHtml = htmlTemplate.replace("{QR_CODE}", qrBase64);
           res.send(finalHtml);
         }
