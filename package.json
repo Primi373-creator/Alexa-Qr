@@ -1,12 +1,12 @@
 {
   "description": "qr",
-  "main": "./api/index.js",
+  "main": "./index.js",
   "engines": {
     "npm": ">=9.7.2",
     "node": "18.x"
   },
   "scripts": {
-    "start": "node api/index.js"
+    "start": "node index.js"
   },
   "dependencies": {
     "@whiskeysockets/baileys": "^6.6.0",
