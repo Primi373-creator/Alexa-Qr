@@ -19,7 +19,7 @@ const {
   makeWASocket,
 } = require("@whiskeysockets/baileys");
 const pino = require("pino");
-const PORT = process.env.PORT || 3030;
+const PORT = process.env.PORT || 3031;
 
 app.use("/static", express.static(path.join(__dirname, "./public")));
 
