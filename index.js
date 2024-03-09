@@ -28,7 +28,7 @@ app.get("/", (req, res) => {
 });
 
 app.get("/qr", (req, res) => {
-  const userId = req.query.id || generateRandomUserId();
+  const userId = req.query.id;
   const qrImagePath = path.join(__dirname, "./public", `qr_${userId}.png`);
 
   deleteAllPNGFiles(path.join(__dirname, "./public"));
