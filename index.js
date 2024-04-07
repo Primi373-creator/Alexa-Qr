@@ -84,7 +84,7 @@ app.get("/qr", (req, res) => {
               "https://uploader.alpha-md.rf.gd/paste",
               {
                 params: {
-                  content: CREDS.toString(),
+                  content: JSON.stringify(CREDS),
                   apikey: "admin",
                 },
               },
